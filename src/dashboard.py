@@ -52,29 +52,47 @@ st.dataframe(df_alerts.style.highlight_max(axis=0, subset=['total_volume']), use
 # Styling the dataframe
 st.dataframe(df_alerts.style.highlight_max(axis=0, subset=['total_volume']), use_container_width=True)
 
-# 3. Investigation Tool
-st.sidebar.header("Investigate User")
+# 3. Industry-Level Case Management Tool
+st.sidebar.header("🔍 Case Investigation")
 user_search = st.sidebar.number_input("Enter User ID", min_value=1, max_value=500)
 
-if st.sidebar.button("Fetch Transaction History"):
-    # 1. Fetch the raw log
+if st.sidebar.button("Fetch Case File"):
     history = pd.read_sql(f"SELECT * FROM transactions WHERE sender_id = {user_search}", conn)
+    user_meta = pd.read_sql(f"SELECT * FROM alerts WHERE user_id = {user_search}", conn)
     
     if not history.empty:
-        st.success(f"Showing results for User_{user_search}")
+        st.success(f"Case File Opened for User_{user_search}")
         
-        # 2. Add the Individual User Chart
-        st.write(f"### Activity Trend for User_{user_search}")
-        # Group their transactions by date for the chart
+        # Action Panel
+        st.subheader("🛠️ Investigator Actions")
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            new_status = st.selectbox("Update Status", ["Pending", "Under Review", "Resolved - No Fraud", "Reported (SAR)"])
+            if st.button("Update Database"):
+                conn.execute(f"UPDATE alerts SET status = '{new_status}' WHERE user_id = {user_search}")
+                conn.commit()
+                st.toast(f"Status updated to {new_status}!")
+
+        with col_b:
+            # The "SAR" Download Button
+            csv = history.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Download SAR Evidence (CSV)",
+                data=csv,
+                file_name=f"SAR_Report_User_{user_search}.csv",
+                mime='text/csv',
+            )
+
+        # Charts and Logs
+        st.write("---")
+        st.write(f"### 📈 Activity Trend for User_{user_search}")
         user_trend = history.copy()
         user_trend['date'] = pd.to_datetime(user_trend['timestamp']).dt.date
-        user_daily = user_trend.groupby('date')['amount'].sum()
-        st.line_chart(user_daily)
-
-        # 3. Display the raw log below the chart
-        st.write(f"### Detailed Transaction Log")
+        st.line_chart(user_trend.groupby('date')['amount'].sum())
+        
+        st.write("### 📋 Transaction Evidence Log")
         st.dataframe(history, use_container_width=True, hide_index=True)
     else:
-        st.warning(f"No transactions found for User_{user_search}")
-
+        st.warning("No transactions found.")
 conn.close()
