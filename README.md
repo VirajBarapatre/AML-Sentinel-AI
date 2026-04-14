@@ -64,5 +64,6 @@ Launch Intelligence Dashboard:
 
 Bash
 streamlit run src/dashboard.py
+
 ⚖️ Disclaimer
 This project is a high-fidelity simulation developed for financial technology research and portfolio demonstration. All data generated is synthetic.
