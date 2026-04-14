@@ -3,31 +3,24 @@ import pandas as pd
 
 def extract_features():
     conn = sqlite3.connect('aml_system.db')
-    
-    # SQL Query to join transactions with user risk levels
-    # We calculate: Total count, Total Volume, and Average transaction size
     query = """
     SELECT 
-        u.user_id,
-        u.risk_level,
-        u.country_code,
-        COUNT(t.txn_id) as txn_count,
+        u.user_id, 
+        u.country_code, 
+        u.lat, 
+        u.lon,
+        COUNT(t.txn_id) as txn_count, 
         SUM(t.amount) as total_volume,
-        AVG(t.amount) as avg_txn_amount
+        AVG(t.amount) as avg_txn_amount,
+        CASE 
+            WHEN u.country_code IN ('KY', 'PA', 'LU', 'AE') THEN 10 
+            ELSE 1 
+        END as risk_score
     FROM users u
     LEFT JOIN transactions t ON u.user_id = t.sender_id
     GROUP BY u.user_id
     """
-    
-    df = pd.read_sql_query(query, conn)
-    
-    # Feature Engineering: Convert Risk Level text to numbers
-    risk_map = {'Low': 1, 'Medium': 2, 'High': 3}
-    df['risk_score'] = df['risk_level'].map(risk_map)
-    
-    # Feature Engineering: Flag high-risk countries (Example: Cayman Islands 'KY')
-    df['country_risk'] = df['country_code'].apply(lambda x: 5 if x in ['KY', 'LU'] else 1)
-    
+    df = pd.read_sql(query, conn)
     conn.close()
     return df
 
@@ -35,3 +28,20 @@ if __name__ == "__main__":
     features = extract_features()
     print("Features extracted successfully!")
     print(features.head())
+
+query = """
+SELECT 
+    t.sender_id as user_id,
+    u.country_code,
+    COUNT(t.id) as txn_count,
+    SUM(t.amount) as total_volume,
+    CASE 
+        WHEN s.user_id IS NOT NULL THEN 100 -- Automatic Max Risk if on Sanctions List
+        WHEN u.country_code IN ('KY', 'LU', 'CH') THEN 5 
+        ELSE 1 
+    END as risk_score
+FROM transactions t
+JOIN users u ON t.sender_id = u.id
+LEFT JOIN sanctions_list s ON t.sender_id = s.id  -- CHECK THE WATCHLIST
+GROUP BY t.sender_id
+"""
