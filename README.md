@@ -1,66 +1,68 @@
-🌐 AML Sentinel: Global Geospatial Financial Intelligence
-AML Sentinel is a high-fidelity Anti-Money Laundering (AML) platform designed to detect, visualize, and investigate financial crimes across a global scale. The system utilizes Unsupervised Machine Learning to flag anomalies and High-Resolution Geospatial Mapping to provide investigators with actionable intelligence.
+🌐 AML Sentinel: End-to-End AI Financial Intelligence
+AML Sentinel is a sophisticated Anti-Money Laundering (AML) platform designed to detect, visualize, and manage global financial risks. The system integrates a full-stack data pipeline—from synthetic transaction generation to unsupervised anomaly detection and geospatial intelligence.
+
+📁 Project Structure
+The project is organized into a modular pipeline:
+
+database_setup.py: Initializes the SQLite RDBMS and generates 2,000+ global users with high-fidelity geospatial coordinates.
+
+feature_eng.py: Processes raw transaction logs into behavioral vectors (e.g., velocity, structuring indicators, and jurisdictional risk).
+
+model_engine.py: The AI core. Utilizes an Isolation Forest model to identify statistical outliers in financial behavior.
+
+watchlists.py: Manages global sanctions lists and PEP (Politically Exposed Persons) screening logic.
+
+dashboard.py: The interactive Streamlit frontend featuring high-resolution PyDeck heatmaps and case management tools.
 
 🚀 Key Features
-AI-Driven Detection: Implements an Isolation Forest model to identify "outlier" behavior in a dataset of 15,000+ transactions.
+1. Advanced Geospatial Heatmapping
+Uses a dual-layer PyDeck implementation to visualize risk density:
 
-Geospatial "Glow" Mapping: A dual-layer 3D/Heatmap visualization that normalizes risk intensity, ensuring visibility for both massive offshore flows and smaller regional "smurfing" patterns.
+Logarithmic Intensity: Ensures visibility of emerging risks in smaller markets (e.g., Mumbai) without them being "drowned out" by high-volume hubs like Luxembourg.
 
-Case Management System: A persistent investigator workflow allowing for status updates (Pending, Under Review, SAR), sanctions checking, and CSV evidence extraction.
+Interactive Tooltips: Deep-dive into specific alerts on hover to see User IDs, Risk Scores, and Last Activity Timestamps.
 
-Industry-Standard Schemas: Utilizes a relational SQLite database with structured KYC (Know Your Customer) and transaction logs.
+2. AI-Driven Detection Engine
+Moving beyond simple rule-based thresholds, the engine identifies complex criminal patterns:
 
-🏗️ Technical Architecture
-1. Data Layer (database_setup.py)
-Generates a realistic global environment with 2,000 users across 10+ international financial hubs.
+Structuring (Smurfing): Detecting multiple transactions designed to stay just beneath reporting limits.
 
-Coordinates: Precise City-level Lat/Lon mapping.
+Rapid Outflows: Flagging high-velocity movements to offshore jurisdictions.
 
-Synthetic Patterns: Injects specific laundering behaviors like Structuring (transactions under $10k) and Rapid Outflows (high-volume crypto transfers).
+3. Case Management Workflow
+Real-time Investigation: Search by User ID to pull a complete transaction "Case File."
 
-2. AI Engine (model_engine.py)
-The "Brain" of the system. It processes a multi-dimensional feature vector:
-
-[Transaction Count, Total Volume, Avg Amount, Risk Score, Latitude, Longitude]
-
-By including Geospatial coordinates in the ML training, the model learns to identify "Jurisdictional Risk" as an anomaly factor.
-
-3. Intelligence Dashboard (dashboard.py)
-Built with Streamlit and PyDeck, featuring:
-
-Logarithmic Heatmap: Uses a color_domain cap to prevent high-volume outliers (like Luxembourg) from drowning out smaller alerts (like Mumbai).
-
-Invisible Sensor Layer: A transparent ScatterplotLayer that enables high-performance tooltips, showing User ID, Risk Score, and Timestamp on hover.
+Persistent Governance: Update alert statuses (Pending -> Under Review -> SAR) directly from the UI with database persistence.
 
 🛠️ Tech Stack
 Language: Python 3.9+
 
 Machine Learning: Scikit-Learn (Isolation Forest)
 
+Data Science: Pandas, NumPy
+
 Database: SQLite3
 
-Visualization: PyDeck (Deck.gl), Pandas, Streamlit
+Visuals: PyDeck (Deck.gl), Streamlit
 
-Map Styles: CartoDB Dark Matter
+Map Tiles: CartoDB (Dark Matter)
 
-📋 Installation & Setup
-1. Clone the repository and install dependencies:
+📋 Quick Start Guide
+Environment Setup:
+
 Bash
 pip install streamlit pandas scikit-learn pydeck
-2. Initialize the Global Database:
-Bash
-python database_setup.py
-3. Run the AI Detection Engine:
-Bash
-python model_engine.py
-4. Launch the Dashboard:
-Bash
-streamlit run dashboard.py
-🛡️ Investigative Use Cases
-This dashboard is pre-configured to detect and visualize three primary risk types:
+Initialize Data:
 
-The Tax Haven Hub: Large volume spikes in jurisdictions like the Cayman Islands or Panama.
+Bash
+python src/database_setup.py
+Train AI Model:
 
-The Structuring Pattern: Dozens of transactions just below $10,000 to evade automated reporting triggers.
+Bash
+python src/model_engine.py
+Launch Intelligence Dashboard:
 
-The Rapid Mover: Users with high-velocity crypto outflows in cities like Dubai or Singapore.
+Bash
+streamlit run src/dashboard.py
+⚖️ Disclaimer
+This project is a high-fidelity simulation developed for financial technology research and portfolio demonstration. All data generated is synthetic.
